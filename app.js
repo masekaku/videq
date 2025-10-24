@@ -2,18 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
     let videos =;
 
-    // Fungsi slugify tidak lagi dibutuhkan untuk routing, tapi bisa disimpan untuk keperluan lain.
     const slugify = (text) => {
         return text.toString().toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^\w\-]+/g, '')
-        .replace(/\-\-+/g, '-')
-        .replace(/^-+/, '')
-        .replace(/-+$/, '');
+       .replace(/\s+/g, '-')
+       .replace(/[^\w\-]+/g, '')
+       .replace(/\-\-+/g, '-')
+       .replace(/^-+/, '')
+       .replace(/-+$/, '');
     };
 
     const updateMetaTags = (video) => {
-        // URL sekarang menggunakan ID unik, lebih andal.
         const pageUrl = `${window.location.origin}/v/${video.id}`;
         const thumbnailUrl = `https://www.domainsitusanda.com/path/to/default-thumbnail.jpg`;
 
@@ -56,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderVideoPage = (video) => {
         updateMetaTags(video);
         app.innerHTML = `
-            <div class="w-full max-w-2xl p-2.5 box-border flex flex-col flex-grow">
+            <div class="w-full max-w-2xl p-2.5 box-border flex flex-col flex-grow min-h-screen">
                 <header class="flex justify-between items-center p-4 border border-gray-700 rounded-lg bg-gray-800 mb-4">
                     <div class="flex items-center gap-2">
                         <div class="flex gap-1">
@@ -68,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="w-6 h-6 border-2 border-white rounded-full"></div>
                 </header>
-                <main>
+                <main class="flex-grow">
                     <section class="relative w-full aspect-video bg-black rounded-lg mb-4 overflow-hidden">
                         <iframe src="${video.url}" class="absolute top-0 left-0 w-full h-full border-0" frameborder="0" allowfullscreen></iframe>
                     </section>
@@ -136,8 +134,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const router = async () => {
         try {
             if (videos.length === 0) {
-                const response = await fetch('/videos.json');
-                if (!response.ok) throw new Error('Network response was not ok');
+                const response = await fetch('videos.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 videos = await response.json();
             }
 
@@ -145,8 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const parts = path.split('/').filter(p => p);
 
             if (parts.length === 2 && parts === 'v') {
-                const id = parts[span_0](start_span)[span_0](end_span);
-                // PERUBAHAN UTAMA: Mencari video berdasarkan 'id', bukan slug dari 'title'
+                const id = parts[1];
                 const video = videos.find(v => v.id === id);
                 if (video) {
                     renderVideoPage(video);
@@ -157,8 +154,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderHomePage();
             }
         } catch (error) {
-            console.error('Gagal memuat data video:', error);
-            app.innerHTML = '<h1 class="text-2xl font-bold text-center mt-10">Gagal memuat konten. Silakan coba lagi nanti.</h1>';
+            console.error('Gagal memuat atau memproses data video:', error);
+            app.innerHTML = `<h1 class="text-2xl font-bold text-center mt-10 text-red-500">Error: Gagal memuat konten. Periksa file videos.json.</h1><p class="text-center text-gray-400">${error}</p>`;
         }
     };
 
