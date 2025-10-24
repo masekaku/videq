@@ -2,17 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const app = document.getElementById('app');
     let videos =;
 
+    // Fungsi slugify tidak lagi dibutuhkan untuk routing, tapi bisa disimpan untuk keperluan lain.
     const slugify = (text) => {
         return text.toString().toLowerCase()
-         .replace(/\s+/g, '-')
-         .replace(/[^\w\-]+/g, '')
-         .replace(/\-\-+/g, '-')
-         .replace(/^-+/, '')
-         .replace(/-+$/, '');
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
     };
 
     const updateMetaTags = (video) => {
-        const pageUrl = `${window.location.origin}/v/${slugify(video.title)}`;
+        // URL sekarang menggunakan ID unik, lebih andal.
+        const pageUrl = `${window.location.origin}/v/${video.id}`;
         const thumbnailUrl = `https://www.domainsitusanda.com/path/to/default-thumbnail.jpg`;
 
         document.title = `${video.title} | Nama Situs Anda`;
@@ -121,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="list-none p-0">
                             ${videos.map(video => `
                                 <li class="mb-2.5">
-                                    <a href="/v/${slugify(video.title)}" class="text-accent no-underline text-lg hover:underline">${video.title}</a>
+                                    <a href="/v/${video.id}" class="text-accent no-underline text-lg hover:underline">${video.title}</a>
                                 </li>
                             `).join('')}
                         </ul>
@@ -143,8 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const parts = path.split('/').filter(p => p);
 
             if (parts.length === 2 && parts === 'v') {
-                const slug = parts[1];
-                const video = videos.find(v => slugify(v.title) === slug);
+                const id = parts[span_0](start_span)[span_0](end_span);
+                // PERUBAHAN UTAMA: Mencari video berdasarkan 'id', bukan slug dari 'title'
+                const video = videos.find(v => v.id === id);
                 if (video) {
                     renderVideoPage(video);
                 } else {
@@ -171,4 +174,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', router);
     router();
 });
-
